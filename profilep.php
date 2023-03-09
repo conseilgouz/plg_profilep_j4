@@ -9,6 +9,9 @@
  defined('JPATH_BASE') or die;
  use Joomla\CMS\Factory;
  use Joomla\CMS\Form\Form;
+ use Joomla\CMS\Language\Text;
+ use Joomla\CMS\Log\Log;
+ use Joomla\CMS\Plugin\CMSPlugin;
  use Joomla\Utilities\ArrayHelper;
   /**
    * An example custom profile plugin.
@@ -17,7 +20,7 @@
    * @subpackage	user.profile
    * @version		1.6
    */
-  class plgUserProfilep extends JPlugin
+  class plgUserProfilep extends CMSPlugin
   {
 	/**
 	 * @param	string	The context for the data
@@ -68,7 +71,7 @@
 		$lang->load('plg_user_profilep', JPATH_ADMINISTRATOR);
 
 		if (!($form instanceof Form)) {
-			$this->_subject->setError('JERROR_NOT_A_FORM');
+			$this->app->enqueueMessage(Text::_('JERROR_NOT_A_FORM'), 'warning');
 			return false;
 		}
 		// Check we are manipulating a valid form.
@@ -114,24 +117,26 @@
 			try
 			{
 				$db = Factory::getDbo();
-				$db->setQuery('DELETE FROM #__user_profiles WHERE user_id = '.$userId.' AND profile_key LIKE \'profilep.%\'');
-				if (!$db->query()) {
-					throw new Exception($db->getErrorMsg());
-				}
-
-				$tuples = array();
+				$query = $db->getQuery(true);
+				$query->delete($db->quoteName('#__user_profiles'))
+					  ->where($db->quoteName('user_id').' = '.$userId.' AND profile_key LIKE \'profilep.%\'');
+				$db->setQuery($query);
+				$result = $db->execute();
+				
+				$columns = array('user_id', 'profile_key', 'profile_value', 'ordering');
 				$order	= 1;
 				foreach ($data['profilep'] as $k => $v) {
-					$tuples[] = '('.$userId.', '.$db->quote('profilep.'.$k).', '.$db->quote(json_encode($v)).', '.$order++.')';
-				}
-
-				$db->setQuery('INSERT INTO #__user_profiles VALUES '.implode(', ', $tuples));
-				if (!$db->query()) {
-					throw new Exception($db->getErrorMsg());
+					$tuples = array($userId.', '.$db->quote('profilep.'.$k).', '.$db->quote(json_encode($v)).', '.$order++);
+					$query = $db->getQuery(true);
+					$query->insert($db->quoteName('#__user_profiles'))
+					->columns($db->quoteName($columns))
+					->values(implode(',', $tuples));
+					$db->setQuery($query);
+					$db->execute();
 				}
 			}
 			catch (\Exception $e) {
-				$this->_subject->setError($e->getMessage());
+				Log::add(Text::_($e->getMessage()), Log::WARNING, 'jerror');
 				return false;
 			}
 		}
@@ -169,7 +174,7 @@
 			}
 			catch (\Exception $e)
 			{
-				$this->_subject->setError($e->getMessage());
+				Log::add(Text::_($e->getMessage()), Log::WARNING, 'jerror');
 				return false;
 			}
 		}
