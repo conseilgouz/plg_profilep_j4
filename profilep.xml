@@ -44,6 +44,8 @@
 			</fieldset>
 		</fields>
 	</config>
+	<changelogurl>https://raw.githubusercontent.com/conseilgouz/plg_profilep_j4/master/plg_user_profilep_changelog.xml</changelogurl>
+	
 	<updateservers>
 		<server type="extension" name="profilep" priority="1">https://www.conseilgouz.com/updates/plg_profilep_update.xml</server>
 	</updateservers>
