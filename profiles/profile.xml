@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+	
+<form>
+	<fields name="profilep">
+		<fieldset name="profilep"
+			label="PLG_USER_PROFILEP_LABEL"	>
+			<field
+				name="position"
+				type="text"
+				id="position"
+				description="PLG_USER_PROFILEP_DESC"
+				filter="string"
+				label="PLG_USER_PROFILEP_LABEL"
+				message="PLG_USER_PROFILEP_MESSAGE"
+				size="40"
+			/>
+		</fieldset>
+	</fields>
+</form>
