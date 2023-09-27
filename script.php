@@ -1,7 +1,7 @@
 <?php
 /**
-* Prev Login Plugin  - Joomla 4.x Plugin 
-* Version			: 2.0.3
+* Prev Login Plugin  - Joomla 4.x/5.x Plugin 
+* Version			: 2.1.0
 * copyright 		: Copyright (C) 2023 ConseilGouz. All rights reserved.
 * license    		: http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
 */
@@ -9,9 +9,10 @@
 defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Filesystem\Folder;
+use Joomla\Filesystem\Folder;
 use Joomla\CMS\Version;
-use Joomla\CMS\Filesystem\File;
+use Joomla\Filesystem\File;
+use Joomla\CMS\Log\Log;
 
 class plgUserprofilepInstallerScript
 {
@@ -22,6 +23,7 @@ class plgUserprofilepInstallerScript
 	private $extname                 = 'profilep';
 	private $previous_version        = '';
 	private $dir           = null;
+	private $lang;
 	private $installerName = 'profilepinstaller';
 	public function __construct()
 	{
@@ -68,7 +70,7 @@ class plgUserprofilepInstallerScript
 	        $db->execute();
         }
         catch (RuntimeException $e) {
-            JLog::add('unable to enable plugin profile_prevlogin', JLog::ERROR, 'jerror');
+            Log::add('unable to enable plugin profile_prevlogin', Log::ERROR, 'jerror');
         }
 	}
 
@@ -107,7 +109,7 @@ class plgUserprofilepInstallerScript
 	}
 	private function uninstallInstaller()
 	{
-		if ( ! JFolder::exists(JPATH_PLUGINS . '/system/' . $this->installerName)) {
+		if ( ! is_dir(JPATH_PLUGINS . '/system/' . $this->installerName)) {
 			return;
 		}
 		$this->delete([
